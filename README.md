@@ -1,1 +1,24 @@
-# pride-usi-viewer
+# pride-lorikeet
+
+## run demo
+```
+npm install
+```
+
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+## Integration
+Please refer to the usage in App.vue.
