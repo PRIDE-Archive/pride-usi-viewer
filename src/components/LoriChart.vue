@@ -14,12 +14,12 @@ export default {
                     text: 'VLHPLEGAVVIIFK',
                     left: 'center'
                 },
-                // tooltip: {
-                //     trigger: 'axis',
-                //     axisPointer: {
-                //         animation: false
-                //     }
-                // },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        animation: false
+                    }
+                },
                 // legend: {
                 // data: ['Evaporation', 'Rainfall'],
                 //     left: 10
