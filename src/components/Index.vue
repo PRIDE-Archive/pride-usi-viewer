@@ -13,18 +13,21 @@
             <massChart></massChart>
         </div>
         <div style="min-width: 200px; flex-grow: 1; border: 1px solid #ddd; padding: 10px;" v-show="true">
+            <loriTable></loriTable>
         </div>
     </div>
 </template>
 
 <script>
 import loriForm from './LoriForm.vue';
+import loriTable from './LoriTable.vue';
 import loriChart from './LoriChart.vue';
 import massChart from './MassChart.vue';
 import peakData from './peaks.json';
 export default {
     components: {
         loriForm,
+        loriTable,
         loriChart,
         massChart
     },
