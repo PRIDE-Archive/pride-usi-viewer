@@ -4,15 +4,13 @@
             <loriForm></loriForm>
         </div>
         <div
-            style="flex-grow: 1; border: 1px solid #ddd; padding: 10px;margin: 0 20px; width: 650px; min-width: 650px;">
+            style="flex-grow: 1; border: 1px solid #ddd; padding: 10px;margin: 0 20px; min-width: 800px;">
             <!-- <Button type="success" @click="submitForm">Submit Index</Button>
             {{ loriAttr.title }} -->
             <loriChart></loriChart>
-            <div>
-            </div>
             <massChart></massChart>
         </div>
-        <div style="min-width: 200px; flex-grow: 1; border: 1px solid #ddd; padding: 10px;" v-show="true">
+        <div style="min-width: 100px; flex-grow: 1; border: 1px solid #ddd; padding: 10px;" v-show="true">
             <loriTable></loriTable>
         </div>
     </div>
@@ -112,7 +110,7 @@ export default {
         }
 
 
-        // this.loriData.peaks = peakData;
+        //this.loriData.peaks = peakData;
 
     },
     methods: {
