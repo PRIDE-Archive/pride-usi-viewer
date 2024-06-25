@@ -1,0 +1,6 @@
+name: pride-lorikeet
+channels:
+  - conda-forge
+dependencies:
+  - nodejs=14  # You can specify any version compatible with your project
+  - pip
