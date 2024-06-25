@@ -10,7 +10,12 @@ export default {
     data() {
         return {
             option: {
-
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        animation: false
+                    }
+                },
                 xAxis: {},
                 yAxis: {},
                 series: [
