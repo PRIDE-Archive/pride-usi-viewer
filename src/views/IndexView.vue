@@ -44,8 +44,8 @@ const value = ref([20, 50]);
 }
 
 .left {
-  min-width: 200px;
-  width: 200px; /* 固定宽度 */
+  min-width: 210px;
+  width: 210px; /* 固定宽度 */
   /* background-color: #f8d7da; */
 }
 
