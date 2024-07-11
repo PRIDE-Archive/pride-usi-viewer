@@ -56,6 +56,8 @@ import * as echarts from "echarts";
 import peakData from "../store/peaks.json";
 import { loriData } from "@/store";
 
+import { getUSI } from '@/api/index'
+
 const showInput = ref(false);
 const inputValue = ref();
 const containerRef = ref<HTMLElement>();
@@ -300,6 +302,12 @@ const initChart = () => {
     ],
   });
 };
+
+const queryUSI = (id: number) => {
+  getUSI(id).then(res => {
+    console.log(res);
+  });
+}
 
 onMounted(() => {
   console.log("peakData", peakData);
