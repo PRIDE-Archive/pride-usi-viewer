@@ -310,6 +310,7 @@ const queryUSI = (id: number) => {
 }
 
 onMounted(() => {
+  // queryUSI(18);
   console.log("peakData", peakData);
   console.log("loriData", loriData);
   let maxMZ = 0;
