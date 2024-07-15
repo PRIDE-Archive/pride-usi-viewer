@@ -128,7 +128,7 @@ const option = ref({
       position: function (point, params, dom, rect, size) {
         console.log("size:", size);
         var x = point[0] - size.contentSize[0] / 2;
-        var y = point[1] + 10; 
+        var y = point[1] + 10;
         return [x, y];
       },
     },
@@ -345,13 +345,29 @@ const onUsi = async () => {
 }
 
 onMounted(async () => {
-  try {
+
+  nextTick(async () => {
+
     Spin.show();
-    await queryUSI1();
-    await queryUSI2();
-  } finally {
+    try {
+      await queryUSI1();
+    } catch (e) {
+      console.error(e);
+    }
+
+    try {
+      await queryUSI2();
+    } catch (e) {
+      console.error(e);
+    }
+
+    option.value.series[0].data = [...loriData.peaks1, ...loriData.peaks2];
+
     Spin.hide();
-  }
+    
+  });
+
+
 
   // console.log("peakData", peakData);
   // console.log("loriData", loriData);
@@ -372,7 +388,6 @@ onMounted(async () => {
   //   // console.log(i,temp[0],temp[1])
   // }
 
-  option.value.series[0].data = [...loriData.peaks1, ...loriData.peaks2];
   // option.value.series[1].data = loriData.peaks2;
 
   // nextTick(() => {
@@ -401,4 +416,4 @@ onMounted(async () => {
 });
 </script>
 
-<style></style>
+<style></style>async async

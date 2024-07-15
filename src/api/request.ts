@@ -39,24 +39,9 @@ server.interceptors.response.use(
     return Promise.resolve(data);
   },
   (error: AxiosError) => {
-    console.error(error.toJSON());
-    console.error(error.response);
-    if (error.response) {
-      const code = error.response.status;
-      let data = error.response as any;
-      let msg ;
-      if( data.data.error){
-        msg = data.data.error;
-      } else if(typeof data.data  == 'string'){
-        msg = data.data;
-      } else {
-        msg = `unknown error,code(${code})`;
-      }
-      Message.error(msg);
-      console.error(`[Axios Error]`, error.response);
-    } else {
-      Message.error(`${error}`);
-    }
+    // console.error(error.toJSON());
+    // console.error(error.response);
+    Message.error(`Request Failed!`);
     return Promise.reject(error);
   }
 );
