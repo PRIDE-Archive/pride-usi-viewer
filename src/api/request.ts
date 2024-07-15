@@ -3,12 +3,12 @@ import Axios, {
   type AxiosResponse,
 } from "axios";
 
-import process from 'process';
+import { Message } from 'view-ui-plus'
 // import { getToken } from "@/store";
 
 const server = Axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API,
-  timeout: 6000,
+  // timeout: 6000,
   withCredentials: false,
 });
 
@@ -22,7 +22,6 @@ server.interceptors.request.use(
     // let token = getToken();
     // // console.log('token:', token);
     // config.headers!['token'] = token;
-
 
     return config;
   },
@@ -56,10 +55,10 @@ server.interceptors.response.use(
       } else {
         msg = `未知错误,code(${code})`;
       }
-      alert(msg);
+      Message.error(msg);
       console.error(`[Axios Error]`, error.response);
     } else {
-      alert(`${error}`);
+      Message.error(`${error}`);
     }
     return Promise.reject(error);
   }
