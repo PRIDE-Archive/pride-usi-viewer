@@ -1,5 +1,5 @@
 import { get, post } from "./request";
 
-export const getUSI = (id: number) => {
-  return get("/delivery/fetch", {id});
+export const getUSI = (usi: string) => {
+  return get("/pride/molecules/ws/spectrum", { usi, resultType: 'FULL' });
 };

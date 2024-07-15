@@ -1,15 +1,12 @@
 <template>
   <!-- loriChat.vue -->
-  <div
-    ref="containerRef"
-    style="
+  <div ref="containerRef" style="
       padding: 30px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-    "
-  >
+    ">
     <!-- 
     <div
       style="
@@ -25,23 +22,11 @@
       >
     </div>
     -->
-    <v-chart
-      :option="option"
-      :autoresize="true"
-      :init-options="{ locale: 'en', width: null, height: null }"
-      ref="echartRef"
-      style="width: 100%; height: 400px"
-    ></v-chart>
+    <v-chart :option="option" :autoresize="true" :init-options="{ locale: 'en', width: null, height: null }"
+      ref="echartRef" style="width: 100%; height: 400px"></v-chart>
 
-    <Modal
-      :closable="false"
-      okText="OK"
-      cancelText="Cancel"
-      v-model="showInput"
-      title="USI"
-      @on-ok="showInput = false"
-      @on-cancel="showInput = false"
-    >
+    <Modal :closable="false" okText="OK" cancelText="Cancel" v-model="showInput" title="USI" @on-ok="onUsi()"
+      @on-cancel="showInput = false">
       <div style="padding: 16px">
         <Input v-model="inputValue" placeholder="Enter the USI..." style="" />
       </div>
@@ -52,17 +37,19 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from "vue";
 import * as echarts from "echarts";
+import { Spin } from 'view-ui-plus'
 
-import peakData from "../store/peaks.json";
+// import peakData from "../store/peaks.json";
 import { loriData } from "@/store";
 
 import { getUSI } from '@/api/index'
 
 const showInput = ref(false);
 const inputValue = ref();
+const usiType = ref(0);
 const containerRef = ref<HTMLElement>();
 const echartRef = ref<HTMLElement>();
-const echart = ref<echarts.ECharts>();
+// const echart = ref<echarts.ECharts>();
 
 const option = ref({
   title: [
@@ -190,6 +177,7 @@ const option = ref({
       },
       onclick: function () {
         // alert("上侧按钮点击");
+        usiType.value = 1;
         showInput.value = true;
       },
     },
@@ -203,7 +191,8 @@ const option = ref({
         height: 20,
       },
       onclick: function () {
-        // alert("上侧按钮点击");
+        // alert("下侧按钮点击");
+        usiType.value = 2;
         showInput.value = true;
       },
     },
@@ -250,13 +239,7 @@ const option = ref({
       },
       // prettier-ignore
       barGap: '-100%',
-      data: [
-        [0, 30],
-        [100, 20],
-        [200, 30],
-        [300, 40],
-        [400, 50],
-      ],
+      data: [],
     },
     {
       name: "series name",
@@ -270,92 +253,152 @@ const option = ref({
       },
       // prettier-ignore
       data: [
-          [400, 40],
-          [740, 40],
-          [850, 50]
+        [400, 40],
+        [740, 40],
+        [850, 50]
       ],
     },
   ],
 });
 
-const initChart = () => {
-  if (!echartRef.value) return;
 
-  echart.value = echarts.init(echartRef.value);
+const queryUSI1 = async (usi: string = 'mzspec:PXD000561:Adult_Frontalcortex_bRP_Elite_85_f09:scan:17555:VLHPLEGAVVIIFK/2') => {
+  Spin.show();
+  try {
+    let psm = await getUSI(usi);
+    console.log('psm:', psm);
+    if (!psm.intensities) {
+      console.error('have not intensities')
+      return;
+    }
+    if (psm.intensities.length != psm.masses.length) {
+      console.error('intensities.length != masses.length')
+      return;
+    }
+    // intensities y轴， masses x轴
+    let maxY = 0;
+    for (let i = 0; i < psm.intensities.length; i++) {
+      let y = psm.intensities[i];
+      maxY = y > maxY ? y : maxY;
+    }
 
-  // 绘制图表
-  echart.value.setOption({
-    title: {
-      text: "ECharts 入门示例",
-    },
-    tooltip: {},
-    xAxis: {
-      data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"],
-    },
-    yAxis: {},
-    series: [
-      {
-        name: "销量",
-        type: "bar",
-        data: [5, 20, 36, 10, 10, 20],
-      },
-    ],
-  });
-};
+    loriData.peaks1 = [];
+    for (let i = 0; i < psm.intensities.length; i++) {
+      let temp: number[] = [psm.masses[i], (psm.intensities[i] * 100) / maxY];
+      loriData.peaks1.push(temp);
+    }
 
-const queryUSI = (id: number) => {
-  getUSI(id).then(res => {
-    console.log(res);
-  });
+    if(psm.peptideSequence){
+      option.value.title[0].text = psm.peptideSequence;
+    }
+  } finally {
+    Spin.hide();
+  }
+
+
+  // option.value.series[0].data = [...loriData.peaks1, ...loriData.peaks2];
 }
 
-onMounted(() => {
-  // queryUSI(18);
-  console.log("peakData", peakData);
-  console.log("loriData", loriData);
-  let maxMZ = 0;
-  for (let i = 0; i < peakData.length; i++) {
-    let mz = peakData[i][1];
-    maxMZ = mz > maxMZ ? mz : maxMZ;
+const queryUSI2 = async (usi: string = 'mzspec:PXD000561:Adult_Frontalcortex_bRP_Elite_85_f09:scan:17555:VLHPLEGAVVIIFK/2') => {
+  Spin.show();
+  try {
+    let psm = await getUSI(usi);
+    console.log('psm:', psm);
+    if (!psm.intensities) {
+      console.error('have not intensities')
+      return;
+    }
+    if (psm.intensities.length != psm.masses.length) {
+      console.error('intensities.length != masses.length')
+      return;
+    }
+    // intensities y轴， masses x轴
+    let maxY = 0;
+    for (let i = 0; i < psm.intensities.length; i++) {
+      let y = psm.intensities[i];
+      maxY = y > maxY ? y : maxY;
+    }
+
+    loriData.peaks2 = [];
+    for (let i = 0; i < psm.intensities.length; i++) {
+      let temp: number[] = [psm.masses[i], -(psm.intensities[i] * 100) / maxY];
+      loriData.peaks2.push(temp);
+    }
+
+    if(psm.peptideSequence){
+      option.value.title[1].text = psm.peptideSequence;
+    }
+
+  } finally {
+    Spin.hide();
   }
 
-  for (let i = 0; i < peakData.length; i++) {
-    let mz = peakData[i][1];
-    maxMZ = mz > maxMZ ? mz : maxMZ;
-    let temp: number[] = [peakData[i][0], (mz * 100) / maxMZ];
-    // loriData.percent.push(temp);
-    loriData.peaks1.push(temp);
-    loriData.peaks2.push([temp[0], -temp[1]]);
-    // loriData.percent.push([temp[0], -temp[1]]);
-    // console.log(i,temp[0],temp[1])
+
+  // option.value.series[0].data = [...loriData.peaks1, ...loriData.peaks2];
+}
+
+const onUsi = async () => {
+  if(!inputValue.value){
+    return;
   }
+  if (usiType.value == 1) {
+    await queryUSI1(inputValue.value);
+  } else {
+    await queryUSI2(inputValue.value);
+  }
+  showInput.value = false;
+  // option.value.series[0].data = [...loriData.peaks1, ...loriData.peaks2];
+  // option.value.series[1].data = loriData.peaks2;
+}
+
+onMounted(async () => {
+  await queryUSI1();
+  await queryUSI2();
+  // console.log("peakData", peakData);
+  // console.log("loriData", loriData);
+  // let maxMZ = 0;
+  // for (let i = 0; i < peakData.length; i++) {
+  //   let mz = peakData[i][1];
+  //   maxMZ = mz > maxMZ ? mz : maxMZ;
+  // }
+
+  // for (let i = 0; i < peakData.length; i++) {
+  //   let mz = peakData[i][1];
+  //   maxMZ = mz > maxMZ ? mz : maxMZ;
+  //   let temp: number[] = [peakData[i][0], (mz * 100) / maxMZ];
+  //   // loriData.percent.push(temp);
+  //   loriData.peaks1.push(temp);
+  //   loriData.peaks2.push([temp[0], -temp[1]]);
+  //   // loriData.percent.push([temp[0], -temp[1]]);
+  //   // console.log(i,temp[0],temp[1])
+  // }
 
   option.value.series[0].data = [...loriData.peaks1, ...loriData.peaks2];
   // option.value.series[1].data = loriData.peaks2;
 
-  nextTick(() => {
-    requestAnimationFrame(() => {
-      console.log(
-        "containerRef width:",
-        containerRef.value?.clientWidth,
-        containerRef.value?.offsetWidth
-      );
-      console.log(
-        "containerRef rects:",
-        containerRef.value?.getClientRects()[0].width
-      );
-      const width = containerRef.value?.clientWidth;
-      if (width) {
-        console.log("width", width);
-        const height = width * (3 / 4);
-        console.log("echartRef", echartRef.value);
-        // containerRef.value.style.height = `${height}px`;
-        // echartRef.value.style.height = `${height}px`;
-        // echartRef.value.style.width = `${width}px`;
-        // initChart();
-      }
-    });
-  });
+  // nextTick(() => {
+  //   requestAnimationFrame(() => {
+  //     console.log(
+  //       "containerRef width:",
+  //       containerRef.value?.clientWidth,
+  //       containerRef.value?.offsetWidth
+  //     );
+  //     console.log(
+  //       "containerRef rects:",
+  //       containerRef.value?.getClientRects()[0].width
+  //     );
+  //     const width = containerRef.value?.clientWidth;
+  //     if (width) {
+  //       console.log("width", width);
+  //       const height = width * (3 / 4);
+  //       console.log("echartRef", echartRef.value);
+  //       // containerRef.value.style.height = `${height}px`;
+  //       // echartRef.value.style.height = `${height}px`;
+  //       // echartRef.value.style.width = `${width}px`;
+  //       // initChart();
+  //     }
+  //   });
+  // });
 });
 </script>
 
