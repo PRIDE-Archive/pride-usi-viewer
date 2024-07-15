@@ -20,7 +20,7 @@ export default defineConfig({
   server: {
     proxy: {
       '^/lorikeet-pride': {
-          target: 'http://127.0.0.1:8443',
+          target: 'https://www.ebi.ac.uk',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/lorikeet-pride/, '')
       },
