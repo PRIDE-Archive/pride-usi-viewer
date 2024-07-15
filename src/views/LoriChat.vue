@@ -258,7 +258,7 @@ const option = ref({
 });
 
 
-const queryUSI1 = async (usi: string = 'mzspec:PXD000561:Adult_Frontalcortex_bRP_Elite_85_f09:scan:17555:VLHPLEGAVVIIFK/2') => {
+const queryUSI1 = async (usi: string = 'mzspec:PXD004939:Rice_phos_ABA_3h_20per_F1_R2:scan:2648:DAEKS[UNIMOD:21]PIN[UNIMOD:7]GR/2') => {
 
   let psm = await getUSI(usi);
   console.log('psm:', psm);
@@ -288,11 +288,10 @@ const queryUSI1 = async (usi: string = 'mzspec:PXD000561:Adult_Frontalcortex_bRP
   }
 
 
-
   // option.value.series[0].data = [...loriData.peaks1, ...loriData.peaks2];
 }
 
-const queryUSI2 = async (usi: string = 'mzspec:PXD004939:Rice_phos_ABA_3h_20per_F1_R2:scan:2648:DAEKS[UNIMOD:21]PIN[UNIMOD:7]GR/2') => {
+const queryUSI2 = async (usi: string = 'mzspec:PRD000900:CPTAC_CompRef_00_iTRAQ_15_2Feb12_Cougar_11-10-09:scan:12450:[UNIMOD:214]VLHPLEGAVVIIFK[UNIMOD:214]/4') => {
 
   let psm = await getUSI(usi);
   console.log('psm:', psm);

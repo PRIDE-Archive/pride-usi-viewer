@@ -17,13 +17,13 @@ export default defineConfig({
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
   },
   plugins: [vue()],
-  server: {
-    proxy: {
-      '^/lorikeet-pride': {
-          target: 'https://www.ebi.ac.uk',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/lorikeet-pride/, '')
-      },
-    }
-  }
+  // server: {
+  //   proxy: {
+  //     '^/lorikeet-pride': {
+  //         target: 'https://www.ebi.ac.uk',
+  //         changeOrigin: true,
+  //         rewrite: (path) => path.replace(/^\/lorikeet-pride/, '')
+  //     },
+  //   }
+  // }
 })

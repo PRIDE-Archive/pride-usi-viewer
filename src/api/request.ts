@@ -7,7 +7,8 @@ import { Message } from 'view-ui-plus'
 // import { getToken } from "@/store";
 
 const server = Axios.create({
-  baseURL: import.meta.env.VITE_APP_BASE_API,
+  // baseURL: import.meta.env.VITE_APP_BASE_API,
+  baseURL: 'https://www.ebi.ac.uk',
   // timeout: 6000,
   withCredentials: false,
 });
@@ -19,6 +20,17 @@ server.interceptors.request.use(
     // let token = getToken();
     // // console.log('token:', token);
     // config.headers!['token'] = token;
+    let url = config.url
+    if (config.method === 'get' && config.params) {
+      url += '?'
+      let keys = Object.keys(config.params)
+      for (let key of keys) {
+        url += `${key}=${encodeURIComponent(config.params[key])}&`
+      }
+      url = url.substring(0, url.length - 1)
+      config.params = {}
+    }
+    config.url = url
 
     return config;
   },
