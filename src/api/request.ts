@@ -14,10 +14,7 @@ const server = Axios.create({
 
 server.interceptors.request.use(
   (config: any) => {
-    /**
-     * 根据你的项目实际情况来对 config 做处理
-     * 这里对 config 不做任何处理，直接返回
-     */
+
     // const store = useStore();
     // let token = getToken();
     // // console.log('token:', token);
@@ -53,7 +50,7 @@ server.interceptors.response.use(
       } else if(typeof data.data  == 'string'){
         msg = data.data;
       } else {
-        msg = `未知错误,code(${code})`;
+        msg = `unknown error,code(${code})`;
       }
       Message.error(msg);
       console.error(`[Axios Error]`, error.response);

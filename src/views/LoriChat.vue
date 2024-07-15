@@ -85,11 +85,11 @@ const option = ref({
     //   }
     // },
     // position: function (point, params, dom, rect, size) {
-    //   // point: 鼠标位置
-    //   // size: 提示框大小
+    //   // point: mouse positon
+    //   // size: size
     //   console.log('size:',size);
     //   var x = point[0] - size.contentSize[0] / 2;
-    //   var y = point[1] + 10; // 调整此值以控制提示框与按钮的距离
+    //   var y = point[1] + 10; 
     //   return [x, y];
     // },
   },
@@ -126,11 +126,9 @@ const option = ref({
         }
       },
       position: function (point, params, dom, rect, size) {
-        // point: 鼠标位置
-        // size: 提示框大小
         console.log("size:", size);
         var x = point[0] - size.contentSize[0] / 2;
-        var y = point[1] + 10; // 调整此值以控制提示框与按钮的距离
+        var y = point[1] + 10; 
         return [x, y];
       },
     },
@@ -176,7 +174,6 @@ const option = ref({
         height: 20,
       },
       onclick: function () {
-        // alert("上侧按钮点击");
         usiType.value = 1;
         showInput.value = true;
       },
@@ -191,7 +188,6 @@ const option = ref({
         height: 20,
       },
       onclick: function () {
-        // alert("下侧按钮点击");
         usiType.value = 2;
         showInput.value = true;
       },
@@ -263,97 +259,100 @@ const option = ref({
 
 
 const queryUSI1 = async (usi: string = 'mzspec:PXD000561:Adult_Frontalcortex_bRP_Elite_85_f09:scan:17555:VLHPLEGAVVIIFK/2') => {
-  Spin.show();
-  try {
-    let psm = await getUSI(usi);
-    console.log('psm:', psm);
-    if (!psm.intensities) {
-      console.error('have not intensities')
-      return;
-    }
-    if (psm.intensities.length != psm.masses.length) {
-      console.error('intensities.length != masses.length')
-      return;
-    }
-    // intensities y轴， masses x轴
-    let maxY = 0;
-    for (let i = 0; i < psm.intensities.length; i++) {
-      let y = psm.intensities[i];
-      maxY = y > maxY ? y : maxY;
-    }
 
-    loriData.peaks1 = [];
-    for (let i = 0; i < psm.intensities.length; i++) {
-      let temp: number[] = [psm.masses[i], (psm.intensities[i] * 100) / maxY];
-      loriData.peaks1.push(temp);
-    }
-
-    if(psm.peptideSequence){
-      option.value.title[0].text = psm.peptideSequence;
-    }
-  } finally {
-    Spin.hide();
+  let psm = await getUSI(usi);
+  console.log('psm:', psm);
+  if (!psm.intensities) {
+    console.error('have not intensities')
+    return;
   }
+  if (psm.intensities.length != psm.masses.length) {
+    console.error('intensities.length != masses.length')
+    return;
+  }
+  // intensities y轴， masses x轴
+  let maxY = 0;
+  for (let i = 0; i < psm.intensities.length; i++) {
+    let y = psm.intensities[i];
+    maxY = y > maxY ? y : maxY;
+  }
+
+  loriData.peaks1 = [];
+  for (let i = 0; i < psm.intensities.length; i++) {
+    let temp: number[] = [psm.masses[i], (psm.intensities[i] * 100) / maxY];
+    loriData.peaks1.push(temp);
+  }
+
+  if (psm.peptideSequence) {
+    option.value.title[0].text = psm.peptideSequence;
+  }
+
 
 
   // option.value.series[0].data = [...loriData.peaks1, ...loriData.peaks2];
 }
 
 const queryUSI2 = async (usi: string = 'mzspec:PXD004939:Rice_phos_ABA_3h_20per_F1_R2:scan:2648:DAEKS[UNIMOD:21]PIN[UNIMOD:7]GR/2') => {
-  Spin.show();
-  try {
-    let psm = await getUSI(usi);
-    console.log('psm:', psm);
-    if (!psm.intensities) {
-      console.error('have not intensities')
-      return;
-    }
-    if (psm.intensities.length != psm.masses.length) {
-      console.error('intensities.length != masses.length')
-      return;
-    }
-    // intensities y轴， masses x轴
-    let maxY = 0;
-    for (let i = 0; i < psm.intensities.length; i++) {
-      let y = psm.intensities[i];
-      maxY = y > maxY ? y : maxY;
-    }
 
-    loriData.peaks2 = [];
-    for (let i = 0; i < psm.intensities.length; i++) {
-      let temp: number[] = [psm.masses[i], -(psm.intensities[i] * 100) / maxY];
-      loriData.peaks2.push(temp);
-    }
-
-    if(psm.peptideSequence){
-      option.value.title[1].text = psm.peptideSequence;
-    }
-
-  } finally {
-    Spin.hide();
+  let psm = await getUSI(usi);
+  console.log('psm:', psm);
+  if (!psm.intensities) {
+    console.error('have not intensities')
+    return;
+  }
+  if (psm.intensities.length != psm.masses.length) {
+    console.error('intensities.length != masses.length')
+    return;
+  }
+  // intensities y， masses x
+  let maxY = 0;
+  for (let i = 0; i < psm.intensities.length; i++) {
+    let y = psm.intensities[i];
+    maxY = y > maxY ? y : maxY;
   }
 
+  loriData.peaks2 = [];
+  for (let i = 0; i < psm.intensities.length; i++) {
+    let temp: number[] = [psm.masses[i], -(psm.intensities[i] * 100) / maxY];
+    loriData.peaks2.push(temp);
+  }
+
+  if (psm.peptideSequence) {
+    option.value.title[1].text = psm.peptideSequence;
+  }
 
   // option.value.series[0].data = [...loriData.peaks1, ...loriData.peaks2];
 }
 
 const onUsi = async () => {
-  if(!inputValue.value){
+  if (!inputValue.value) {
     return;
   }
-  if (usiType.value == 1) {
-    await queryUSI1(inputValue.value);
-  } else {
-    await queryUSI2(inputValue.value);
+  try {
+    Spin.show();
+    if (usiType.value == 1) {
+      await queryUSI1(inputValue.value);
+    } else {
+      await queryUSI2(inputValue.value);
+    }
+  } finally {
+    showInput.value = false;
+    Spin.hide();
   }
-  showInput.value = false;
+
   // option.value.series[0].data = [...loriData.peaks1, ...loriData.peaks2];
   // option.value.series[1].data = loriData.peaks2;
 }
 
 onMounted(async () => {
-  await queryUSI1();
-  await queryUSI2();
+  try {
+    Spin.show();
+    await queryUSI1();
+    await queryUSI2();
+  } finally {
+    Spin.hide();
+  }
+
   // console.log("peakData", peakData);
   // console.log("loriData", loriData);
   // let maxMZ = 0;

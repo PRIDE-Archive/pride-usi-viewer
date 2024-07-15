@@ -45,7 +45,7 @@ const value = ref([20, 50]);
 
 .left {
   min-width: 210px;
-  width: 210px; /* 固定宽度 */
+  width: 210px; 
   /* background-color: #f8d7da; */
 }
 
