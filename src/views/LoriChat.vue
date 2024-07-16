@@ -44,12 +44,12 @@ const echartRef = ref<HTMLElement>();
 const option = ref({
   title: [
     {
-      text: "VLHPLEGAVVIIFK",
+      text: "",
       left: "center",
       top: "top",
     },
     {
-      text: "VLHPLEGAVVIIFK",
+      text: "",
       left: "center",
       bottom: "40",
     },
@@ -67,12 +67,12 @@ const option = ref({
         // yAxisIndex: "none",
         // title: 'Save As Image',
       },
-      restore: {},
+      // restore: {},
       saveAsImage: {
         title: "Save",
       },
     },
-    bottom: "40%",
+    bottom: "47%",
     right: "30",
   },
   axisPointer: {
