@@ -7,49 +7,39 @@
       justify-content: center;
       align-items: center;
     ">
-    <!-- 
-    <div
-      style="
-        display: flex;
-        justify-content: start;
-        align-items: center;
-        width: 100%;
-      "
-    >
-      <div style="font-weight: bold; font-size: 18px">VLHPLEGAVVIIFK</div>
-      <Button type="primary" style="margin-left: 8px" @click="showInput = true"
-        >input</Button
-      >
-    </div>
-    -->
+
     <v-chart :option="option" :autoresize="true" :init-options="{ locale: 'en', width: null, height: null }"
       ref="echartRef" style="width: 100%; height: 400px"></v-chart>
 
     <Modal :closable="false" okText="OK" cancelText="Cancel" v-model="showInput" title="USI" @on-ok="onUsi()"
       @on-cancel="showInput = false">
-      <div style="padding: 16px">
-        <Input v-model="inputValue" placeholder="Enter the USI..." style="" />
+      <div>
+        <div style="margin-left:16px;">Peptide: {{ Peptide }}</div>
+        <div style="padding: 16px; display: flex; align-items: center; ">
+          <div style="font-size: 16px;margin-right: 4px;">usi:</div>
+          <Input v-model="inputValue" placeholder="Enter the USI..." style="" />
+        </div>
       </div>
+
     </Modal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from "vue";
-import * as echarts from "echarts";
 import { Spin } from 'view-ui-plus'
 
-// import peakData from "../store/peaks.json";
 import { loriData } from "@/store";
 
 import { getUSI } from '@/api/index'
+
+const Peptide = ref<string>("");
 
 const showInput = ref(false);
 const inputValue = ref();
 const usiType = ref(0);
 const containerRef = ref<HTMLElement>();
 const echartRef = ref<HTMLElement>();
-// const echart = ref<echarts.ECharts>();
 
 const option = ref({
   title: [
@@ -64,35 +54,7 @@ const option = ref({
       bottom: "40",
     },
   ],
-  // tooltip: {
-  //     trigger: 'axis',
-  //     axisPointer: {
-  //         animation: false
-  //     }
-  // },
-  // legend: {
-  // data: ['Evaporation', 'Rainfall'],
-  //     left: 10
-  // },
-  tooltip: {
-    show: true,
-    // trigger: "item",
-    // formatter: function (param) {
-    //   console.log(param);
-    //   if (param.componentType === "toolbox") {
-    //     // return param.title;
-    //     // return '<div style="width: 100px; height: 20px; text-align: center;">' + param.title + 'new' + '</div>';
-    //   }
-    // },
-    // position: function (point, params, dom, rect, size) {
-    //   // point: mouse positon
-    //   // size: size
-    //   console.log('size:',size);
-    //   var x = point[0] - size.contentSize[0] / 2;
-    //   var y = point[1] + 10; 
-    //   return [x, y];
-    // },
-  },
+
   toolbox: {
     orient: "vertical",
     showTitle: true,
@@ -112,26 +74,6 @@ const option = ref({
     },
     bottom: "40%",
     right: "30",
-    tooltip: {
-      show: false,
-      formatter: function (param) {
-        console.log(param);
-        if (param.componentType === "toolbox") {
-          // return param.title;
-          return (
-            '<div style="width: auto; height: 20px; padding: 0 8px; margin: 0; text-align: center; font-size: 12px; line-height: 20px;">' +
-            param.title +
-            "</div>"
-          );
-        }
-      },
-      position: function (point, params, dom, rect, size) {
-        console.log("size:", size);
-        var x = point[0] - size.contentSize[0] / 2;
-        var y = point[1] + 10;
-        return [x, y];
-      },
-    },
   },
   axisPointer: {
     link: [
@@ -174,8 +116,7 @@ const option = ref({
         height: 20,
       },
       onclick: function () {
-        usiType.value = 1;
-        showInput.value = true;
+        onShowType(1);
       },
     },
     {
@@ -188,8 +129,7 @@ const option = ref({
         height: 20,
       },
       onclick: function () {
-        usiType.value = 2;
-        showInput.value = true;
+        onShowType(2);
       },
     },
   ],
@@ -201,19 +141,12 @@ const option = ref({
       max: 1400,
       position: "bottom",
       interval: 200,
-      // axisLabel: {
-      //     interval: '200'
-      // }
     },
   ],
   yAxis: [
     {
-      // name: 'm/z',
+      name: 'm/z',
       type: "value",
-      splitLine: {
-        // show: false
-      },
-
       position: "left",
       min: -100,
       max: 100,
@@ -224,18 +157,65 @@ const option = ref({
       },
     },
   ],
+  tooltip: {
+
+  },
+  dataset: [
+    {
+      dimensions: ['x', 'y', 'p'],
+      source: []
+    },
+    {
+      dimensions: ['x', 'y', 'p'],
+      source: []
+    }
+  ],
   series: [
     {
-      // name: 'm/z',
+      name: 'm/z1',
       type: "bar",
+      encode: { x: 'x', y: 'p' },
+      datasetIndex: 0,
       barWidth: 2,
-      // showBackground: true,
       itemStyle: {
         color: "rgba(180, 180, 180, 1)",
       },
-      // prettier-ignore
       barGap: '-100%',
-      data: [],
+      tooltip: {
+        show: true,
+        trigger: 'item',
+        formatter: function (params) {
+          return [
+            '<h3>Peptide: ' + option.value.title[0].text + ' </h3><hr size=1 style="margin: 3px 0">',
+            'X Value: ' + params.data[0] + '<br/>',
+            'Y Value: ' + params.data[1] + '<br/>',
+            'Y Percent: ' + params.data[2] + '%<br/>'
+          ].join('');
+        }
+      },
+    },
+    {
+      name: 'm/z2',
+      type: "bar",
+      encode: { x: 'x', y: 'p' },
+      datasetIndex: 1,
+      barWidth: 2,
+      itemStyle: {
+        color: "rgba(180, 180, 180, 1)",
+      },
+      barGap: '-100%',
+      tooltip: {
+        show: true,
+        trigger: 'item',
+        formatter: function (params) {
+          return [
+            '<h3>Peptide: '+ option.value.title[1].text + ' </h3><hr size=1 style="margin: 3px 0">',
+            'X Value: ' + params.data[0] + '<br/>',
+            'Y Value: ' + params.data[1] + '<br/>',
+            'Y Percent: ' + params.data[2] + '%<br/>'
+          ].join('');
+        }
+      },
     },
     {
       name: "series name",
@@ -247,12 +227,7 @@ const option = ref({
       itemStyle: {
         color: "rgba(0, 0, 255, 1)",
       },
-      // prettier-ignore
-      data: [
-        [400, 40],
-        [740, 40],
-        [850, 50]
-      ],
+      data: [],
     },
   ],
 });
@@ -261,7 +236,7 @@ const option = ref({
 const queryUSI1 = async (usi: string = 'mzspec:PXD004939:Rice_phos_ABA_3h_20per_F1_R2:scan:2648:DAEKS[UNIMOD:21]PIN[UNIMOD:7]GR/2') => {
 
   let psm = await getUSI(usi);
-  console.log('psm:', psm);
+  // console.log('psm:', psm);
   if (!psm.intensities) {
     console.error('have not intensities')
     return;
@@ -277,24 +252,23 @@ const queryUSI1 = async (usi: string = 'mzspec:PXD004939:Rice_phos_ABA_3h_20per_
     maxY = y > maxY ? y : maxY;
   }
 
-  loriData.peaks1 = [];
+  // loriData.peaks1 = [];
+  option.value.dataset[0].source = [];
   for (let i = 0; i < psm.intensities.length; i++) {
-    let temp: number[] = [psm.masses[i], (psm.intensities[i] * 100) / maxY];
-    loriData.peaks1.push(temp);
+    let temp: number[] = [psm.masses[i], psm.intensities[i], Number(((psm.intensities[i] * 100) / maxY).toFixed(2))];
+    option.value.dataset[0].source.push(temp);
   }
 
   if (psm.peptideSequence) {
     option.value.title[0].text = psm.peptideSequence;
   }
 
-
-  // option.value.series[0].data = [...loriData.peaks1, ...loriData.peaks2];
 }
 
 const queryUSI2 = async (usi: string = 'mzspec:PRD000900:CPTAC_CompRef_00_iTRAQ_15_2Feb12_Cougar_11-10-09:scan:12450:[UNIMOD:214]VLHPLEGAVVIIFK[UNIMOD:214]/4') => {
 
   let psm = await getUSI(usi);
-  console.log('psm:', psm);
+  // console.log('psm:', psm);
   if (!psm.intensities) {
     console.error('have not intensities')
     return;
@@ -310,10 +284,10 @@ const queryUSI2 = async (usi: string = 'mzspec:PRD000900:CPTAC_CompRef_00_iTRAQ_
     maxY = y > maxY ? y : maxY;
   }
 
-  loriData.peaks2 = [];
+  option.value.dataset[1].source = [];
   for (let i = 0; i < psm.intensities.length; i++) {
-    let temp: number[] = [psm.masses[i], -(psm.intensities[i] * 100) / maxY];
-    loriData.peaks2.push(temp);
+    let temp: number[] = [psm.masses[i], psm.intensities[i], 0-Number(((psm.intensities[i] * 100) / maxY).toFixed(2))];
+    option.value.dataset[1].source.push(temp);
   }
 
   if (psm.peptideSequence) {
@@ -322,8 +296,18 @@ const queryUSI2 = async (usi: string = 'mzspec:PRD000900:CPTAC_CompRef_00_iTRAQ_
 
   // option.value.series[0].data = [...loriData.peaks1, ...loriData.peaks2];
 }
+const onShowType = (type: number) => {
+  usiType.value = type;
+  if (usiType.value == 1) {
+    Peptide.value = option.value.title[0].text;
+  } else {
+    Peptide.value = option.value.title[1].text;
+  }
+  showInput.value = true;
+}
 
 const onUsi = async () => {
+
   if (!inputValue.value) {
     return;
   }
@@ -338,9 +322,6 @@ const onUsi = async () => {
     showInput.value = false;
     Spin.hide();
   }
-
-  // option.value.series[0].data = [...loriData.peaks1, ...loriData.peaks2];
-  // option.value.series[1].data = loriData.peaks2;
 }
 
 onMounted(async () => {
@@ -360,10 +341,8 @@ onMounted(async () => {
       console.error(e);
     }
 
-    option.value.series[0].data = [...loriData.peaks1, ...loriData.peaks2];
-
     Spin.hide();
-    
+
   });
 
 

@@ -4,10 +4,8 @@ import Axios, {
 } from "axios";
 
 import { Message } from 'view-ui-plus'
-// import { getToken } from "@/store";
 
 const server = Axios.create({
-  // baseURL: import.meta.env.VITE_APP_BASE_API,
   baseURL: 'https://www.ebi.ac.uk',
   // timeout: 6000,
   withCredentials: false,
