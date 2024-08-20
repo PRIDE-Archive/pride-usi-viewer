@@ -5,6 +5,7 @@
       <loriForm />
     </div>
     <div class="column middle">
+      <!-- <ColourfulText></ColourfulText> -->
 
       <loriChat />
       <div style="height:4px; background-color: #ddd; margin: 32px 0;"></div>
@@ -22,6 +23,7 @@ import loriForm from "./LoriForm.vue";
 import loriChat from "./LoriChat.vue";
 import massChat from "./MassChat.vue";
 import loriTable from "./LoriTable.vue";
+// import ColourfulText from "./ColourfulText.vue";
 import { ref, type Ref } from "vue";
 
 // const value: Ref<number[]> = ref([20, 50])

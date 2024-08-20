@@ -7,10 +7,10 @@
       justify-content: center;
       align-items: center;
     ">
-
+    <ColourfulText :title="loriData.spectrum1.title"></ColourfulText>
     <v-chart :option="option" :autoresize="true" :init-options="{ locale: 'en', width: null, height: null }"
       ref="echartRef" style="width: 100%; height: 400px"></v-chart>
-
+    <ColourfulText :title="loriData.spectrum2.title"></ColourfulText>
     <Modal :closable="false" okText="OK" cancelText="Cancel" v-model="showInput" title="USI" @on-ok="onUsi()"
       @on-cancel="showInput = false">
       <div>
@@ -26,12 +26,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from "vue";
+import { ref, onMounted, nextTick,computed,watch } from "vue";
 import { Spin } from 'view-ui-plus'
+import ColourfulText from "./ColourfulText.vue";
+import { loriData,loadSpectrumData1,loadSpectrumData2,loadSpectrumAnnotation1,loadSpectrumAnnotation2 } from "@/store";
 
-import { loriData } from "@/store";
-
-import { getUSI } from '@/api/index'
+import { getSpectrum } from '@/api/index'
 
 const Peptide = ref<string>("");
 
@@ -41,19 +41,53 @@ const usiType = ref(0);
 const containerRef = ref<HTMLElement>();
 const echartRef = ref<HTMLElement>();
 
+const usi1 = 'mzspec:PXD004939:Rice_phos_ABA_3h_20per_F1_R2:scan:2648:DAEKS[UNIMOD:21]PIN[UNIMOD:7]GR/2';
+const usi2 = 'mzspec:PRD000900:CPTAC_CompRef_00_iTRAQ_15_2Feb12_Cougar_11-10-09:scan:12450:[UNIMOD:214]VLHPLEGAVVIIFK[UNIMOD:214]/4';
+
+
+watch(() => loriData.spectrum1, () => {
+  // console.log('loriData.spectrum1 changed:', loriData.spectrum1);
+  // option.value.title[0].text = loriData.spectrum1.title;
+  option.value.dataset[0].source = loriData.spectrum1.peaks;
+},{deep: true})
+
+watch(() => loriData.spectrum2, () => {
+  // console.log('loriData.spectrum2 changed:', loriData.spectrum2);
+  // option.value.title[1].text = loriData.spectrum2.title;
+  // option.value.dataset[1].source = loriData.spectrum2.peaks;
+  option.value.dataset[1].source = loriData.spectrum2.peaks.map(peak => ({
+    ...peak,
+    percent: -peak.percent // 取负数
+  }));
+
+},{deep: true})
+
+watch(() => loriData.annotation1, () => {
+  // console.log('loriData.annotation1 changed:', loriData.annotation1);
+  option.value.dataset[2].source = loriData.annotation1.peaks;
+},{deep: true})
+
+watch(() => loriData.annotation2, () => {
+  // console.log('loriData.annotation2 changed:', loriData.annotation2);
+  option.value.dataset[3].source = loriData.annotation2.peaks.map(peak => ({
+    ...peak,
+    percent: -peak.percent // 取负数
+  }));
+},{deep: true})
+
 const option = ref({
-  title: [
-    {
-      text: "",
-      left: "center",
-      top: "top",
-    },
-    {
-      text: "",
-      left: "center",
-      bottom: "40",
-    },
-  ],
+  // title: [
+  //   {
+  //     text: '',
+  //     left: "center",
+  //     top: "top",
+  //   },
+  //   {
+  //     text: "",
+  //     left: "center",
+  //     bottom: "40",
+  //   },
+  // ],
 
   toolbox: {
     orient: "vertical",
@@ -162,11 +196,19 @@ const option = ref({
   },
   dataset: [
     {
-      dimensions: ['x', 'y', 'p'],
+      dimensions: ['mz', 'intensity', 'percent'],
       source: []
     },
     {
-      dimensions: ['x', 'y', 'p'],
+      dimensions: ['mz', 'intensity', 'percent'],
+      source: []
+    },
+    {
+      dimensions: ['mz', 'intensity', 'percent','icon'],
+      source: []
+    },
+    {
+      dimensions: ['mz', 'intensity', 'percent','icon'],
       source: []
     }
   ],
@@ -174,7 +216,7 @@ const option = ref({
     {
       name: 'm/z1',
       type: "bar",
-      encode: { x: 'x', y: 'p' },
+      encode: { x: 'mz', y: 'percent' },
       datasetIndex: 0,
       barWidth: 2,
       itemStyle: {
@@ -186,10 +228,10 @@ const option = ref({
         trigger: 'item',
         formatter: function (params) {
           return [
-            '<h3>Peptide: ' + option.value.title[0].text + ' </h3><hr size=1 style="margin: 3px 0">',
-            'X Value: ' + params.data[0] + '<br/>',
-            'Y Value: ' + params.data[1] + '<br/>',
-            'Y Percent: ' + params.data[2] + '%<br/>'
+            '<h3>Peptide: ' + loriData.spectrum1.title + ' </h3><hr size=1 style="margin: 3px 0">',
+            'X Value: ' + params.data.mz + '<br/>',
+            'Y Value: ' + params.data.intensity + '<br/>',
+            'Y Percent: ' + params.data.percent + '%<br/>'
           ].join('');
         }
       },
@@ -197,7 +239,7 @@ const option = ref({
     {
       name: 'm/z2',
       type: "bar",
-      encode: { x: 'x', y: 'p' },
+      encode: { x: 'x', y: 'percent' },
       datasetIndex: 1,
       barWidth: 2,
       itemStyle: {
@@ -209,17 +251,19 @@ const option = ref({
         trigger: 'item',
         formatter: function (params) {
           return [
-            '<h3>Peptide: '+ option.value.title[1].text + ' </h3><hr size=1 style="margin: 3px 0">',
-            'X Value: ' + params.data[0] + '<br/>',
-            'Y Value: ' + params.data[1] + '<br/>',
-            'Y Percent: ' + params.data[2] + '%<br/>'
+            '<h3>Peptide: ' + loriData.spectrum2.title + ' </h3><hr size=1 style="margin: 3px 0">',
+            'X Value: ' + params.data.mz + '<br/>',
+            'Y Value: ' + params.data.intensity + '<br/>',
+            'Y Percent: ' + params.data.percent + '%<br/>'
           ].join('');
         }
       },
     },
     {
-      name: "series name",
+      name: "Annotation",
       type: "bar",
+      encode: { x: 'mz', y: 'percent' },
+      datasetIndex: 2,
       symbolSize: 1,
       // showBackground: true,
       barWidth: 2,
@@ -227,7 +271,47 @@ const option = ref({
       itemStyle: {
         color: "rgba(0, 0, 255, 1)",
       },
-      data: [],
+      label: {
+        normal: {
+          show: true,
+          position: 'top',
+          formatter: function (param) {
+            // console.log('param:', param.data);
+            return (param.data.icon);
+          },
+          textStyle: {
+            color: '#000'
+          }
+        }
+        // 结束 normal 配置
+      },
+    },
+    {
+      name: "Annotation",
+      type: "bar",
+      encode: { x: 'mz', y: 'percent' },
+      datasetIndex: 3,
+      symbolSize: 1,
+      // showBackground: true,
+      barWidth: 2,
+      barGap: "-100%",
+      itemStyle: {
+        color: "rgba(0, 0, 255, 1)",
+      },
+      label: {
+        normal: {
+          show: true,
+          position: 'bottom',
+          formatter: function (param) {
+            // console.log('param:', param.data);
+            return (param.data.icon);
+          },
+          textStyle: {
+            color: '#000'
+          }
+        }
+        // 结束 normal 配置
+      },
     },
   ],
 });
@@ -235,7 +319,7 @@ const option = ref({
 
 const queryUSI1 = async (usi: string = 'mzspec:PXD004939:Rice_phos_ABA_3h_20per_F1_R2:scan:2648:DAEKS[UNIMOD:21]PIN[UNIMOD:7]GR/2') => {
 
-  let psm = await getUSI(usi);
+  let psm = await getSpectrum(usi);
   // console.log('psm:', psm);
   if (!psm.intensities) {
     console.error('have not intensities')
@@ -267,7 +351,7 @@ const queryUSI1 = async (usi: string = 'mzspec:PXD004939:Rice_phos_ABA_3h_20per_
 
 const queryUSI2 = async (usi: string = 'mzspec:PRD000900:CPTAC_CompRef_00_iTRAQ_15_2Feb12_Cougar_11-10-09:scan:12450:[UNIMOD:214]VLHPLEGAVVIIFK[UNIMOD:214]/4') => {
 
-  let psm = await getUSI(usi);
+  let psm = await getSpectrum(usi);
   // console.log('psm:', psm);
   if (!psm.intensities) {
     console.error('have not intensities')
@@ -286,7 +370,7 @@ const queryUSI2 = async (usi: string = 'mzspec:PRD000900:CPTAC_CompRef_00_iTRAQ_
 
   option.value.dataset[1].source = [];
   for (let i = 0; i < psm.intensities.length; i++) {
-    let temp: number[] = [psm.masses[i], psm.intensities[i], 0-Number(((psm.intensities[i] * 100) / maxY).toFixed(2))];
+    let temp: number[] = [psm.masses[i], psm.intensities[i], 0 - Number(((psm.intensities[i] * 100) / maxY).toFixed(2))];
     option.value.dataset[1].source.push(temp);
   }
 
@@ -299,9 +383,9 @@ const queryUSI2 = async (usi: string = 'mzspec:PRD000900:CPTAC_CompRef_00_iTRAQ_
 const onShowType = (type: number) => {
   usiType.value = type;
   if (usiType.value == 1) {
-    Peptide.value = option.value.title[0].text;
+    Peptide.value = loriData.spectrum1.title;
   } else {
-    Peptide.value = option.value.title[1].text;
+    Peptide.value = loriData.spectrum2.title;
   }
   showInput.value = true;
 }
@@ -314,9 +398,11 @@ const onUsi = async () => {
   try {
     Spin.show();
     if (usiType.value == 1) {
-      await queryUSI1(inputValue.value);
+      await loadSpectrumData1(inputValue.value);
+      await loadSpectrumAnnotation1();
     } else {
-      await queryUSI2(inputValue.value);
+      await loadSpectrumData2(inputValue.value);
+      await loadSpectrumAnnotation2();
     }
   } finally {
     showInput.value = false;
@@ -330,13 +416,17 @@ onMounted(async () => {
 
     Spin.show();
     try {
-      await queryUSI1();
+      // await queryUSI1();
+      await loadSpectrumData1(usi1);
+      await loadSpectrumAnnotation1();
+
     } catch (e) {
       console.error(e);
     }
 
     try {
-      await queryUSI2();
+      await loadSpectrumData2(usi2);
+      await loadSpectrumAnnotation2();
     } catch (e) {
       console.error(e);
     }
