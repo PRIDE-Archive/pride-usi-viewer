@@ -1,48 +1,92 @@
 <template>
   <div style="max-width: 2000px;">
-    <v-chart
-      :autoresize="true"
-      ref="chart"
-      style="width: 100%; height: 300px"
-      :option="option"
-      :auto-resize="true"
-    ></v-chart>
+    <v-chart ref="chart" :autoresize="true" :init-options="{ locale: 'en', width: null, height: null }" :option="option"
+      style="width: 100%; height: 300px;border: 1px solid #ddd;"></v-chart>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { loriAttr, loriData } from "@/store";
+import { ref, onMounted, watch } from "vue";
+
+
+watch(() => loriData.annotation1, () => {
+  // console.log('loriData.annotation1 changed:', loriData.annotation1);
+  option.value.dataset[0].source = loriData.annotation1.peaks;
+}, { deep: true })
+
+watch(() => loriData.annotation2, () => {
+  // console.log('loriData.annotation1 changed:', loriData.annotation1);
+  option.value.dataset[1].source = loriData.annotation2.peaks.map(peak => ({
+    ...peak,
+    mass: -peak.mass // 取负数
+  }));
+}, { deep: true })
+
+watch(() => loriAttr.mass.tol, () => {
+  if (loriAttr.mass.tol && loriAttr.mass.tol > 1) {
+    option.value.yAxis.max = Number(loriAttr.mass.tol) + 5;
+    option.value.yAxis.min = -option.value.yAxis.max;
+  }
+})
 
 const option = ref({
-  xAxis: {},
-  yAxis: {},
+  grid: {
+    containLabel: false,
+    show: true,
+    left: "5%",
+    right: "5%",
+  },
+  xAxis: {
+    type: "value",
+    min: 0,
+    max: 1400,
+    position: "bottom",
+    interval: 200,
+  },
+  yAxis: {
+    name: 'm/z',
+    type: "value",
+    position: "left",
+    max: 20,
+    min: -20,
+    // interval: 20,
+    axisLabel: {
+      show: true,
+      formatter: "{value} ",
+    },
+  },
+  dataset: [
+    {
+      dimensions: ['mz', 'intensity', 'percent', 'icon', 'mass'],
+      source: []
+    },
+    {
+      dimensions: ['mz', 'intensity', 'percent', 'icon', 'mass'],
+      source: []
+    }
+  ],
   series: [
     {
-      symbolSize: 20,
-      data: [
-        [10.0, 8.04],
-        [8.07, 6.95],
-        [13.0, 7.58],
-        [9.05, 8.81],
-        [11.0, 8.33],
-        [14.0, 7.66],
-        [13.4, 6.81],
-        [10.0, 6.33],
-        [14.0, 8.96],
-        [12.5, 6.82],
-        [9.15, 7.2],
-        [11.5, 7.2],
-        [3.03, 4.23],
-        [12.2, 7.83],
-        [2.02, 4.47],
-        [1.05, 3.33],
-        [4.05, 4.96],
-        [6.03, 7.24],
-        [12.0, 6.26],
-        [12.0, 8.84],
-        [7.08, 5.82],
-        [5.02, 5.68],
-      ],
+      symbolSize: 10,
+      datasetIndex: 0,
+      encode: { x: 'mz', y: 'mass' },
+      itemStyle: {
+        color: function (params) {
+          return params.data.type == 'b' ? 'blue' : 'red';
+        },
+      },
+      type: "scatter",
+    },
+    {
+      symbolSize: 10,
+      datasetIndex: 1,
+      encode: { x: 'mz', y: 'mass' },
+      itemStyle: {
+        color: function (params) {
+          return params.data.type == 'b' ? 'blue' : 'red';
+        },
+      },
       type: "scatter",
     },
   ],
