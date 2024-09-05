@@ -1,16 +1,16 @@
 <template>
   <!-- loriChat.vue -->
   <div ref="containerRef" style="
-      padding: 30px;
+      /* padding: 30px; */
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
     ">
-    <ColourfulText :title="loriData.spectrum1.title"></ColourfulText>
-    <v-chart :option="option" :autoresize="true" :init-options="{ locale: 'en', width: null, height: null }"
-      ref="echartRef" style="width: 100%; height: 400px"></v-chart>
-    <ColourfulText :title="loriData.spectrum2.title"></ColourfulText>
+    <ColourfulText v-if="loriData.annotation1.annotations.length > 0" :title="loriData.spectrum1.title"
+      :annotations="loriData.annotation1.annotations"></ColourfulText>
+    <v-chart  ref="echartRef" :autoresize="true" :init-options="{ locale: 'en', width: null, height: null }"  :option="option" style="width: 100%; height: 400px;"></v-chart>
+    <ColourfulText :title="loriData.spectrum2.title" :annotations="loriData.annotation2.annotations"></ColourfulText>
     <Modal :closable="false" okText="OK" cancelText="Cancel" v-model="showInput" title="USI" @on-ok="onUsi()"
       @on-cancel="showInput = false">
       <div>
@@ -26,10 +26,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick,computed,watch } from "vue";
+import { ref, onMounted, nextTick, computed, watch } from "vue";
 import { Spin } from 'view-ui-plus'
 import ColourfulText from "./ColourfulText.vue";
-import { loriData,loadSpectrumData1,loadSpectrumData2,loadSpectrumAnnotation1,loadSpectrumAnnotation2 } from "@/store";
+import { loriData, loadSpectrumData1, loadSpectrumData2, loadSpectrumAnnotation1, loadSpectrumAnnotation2 } from "@/store";
 
 import { getSpectrum } from '@/api/index'
 
@@ -42,14 +42,15 @@ const containerRef = ref<HTMLElement>();
 const echartRef = ref<HTMLElement>();
 
 const usi1 = 'mzspec:PXD004939:Rice_phos_ABA_3h_20per_F1_R2:scan:2648:DAEKS[UNIMOD:21]PIN[UNIMOD:7]GR/2';
-const usi2 = 'mzspec:PRD000900:CPTAC_CompRef_00_iTRAQ_15_2Feb12_Cougar_11-10-09:scan:12450:[UNIMOD:214]VLHPLEGAVVIIFK[UNIMOD:214]/4';
+// const usi2 = 'mzspec:PRD000900:CPTAC_CompRef_00_iTRAQ_15_2Feb12_Cougar_11-10-09:scan:12450:[UNIMOD:214]VLHPLEGAVVIIFK[UNIMOD:214]/4';
+const usi2 = 'mzspec:PXD000561:Adult_Frontalcortex_bRP_Elite_85_f09:scan:17555:VLHPLEGAVVIIFK/2';
 
 
 watch(() => loriData.spectrum1, () => {
   // console.log('loriData.spectrum1 changed:', loriData.spectrum1);
   // option.value.title[0].text = loriData.spectrum1.title;
   option.value.dataset[0].source = loriData.spectrum1.peaks;
-},{deep: true})
+}, { deep: true })
 
 watch(() => loriData.spectrum2, () => {
   // console.log('loriData.spectrum2 changed:', loriData.spectrum2);
@@ -60,12 +61,12 @@ watch(() => loriData.spectrum2, () => {
     percent: -peak.percent // 取负数
   }));
 
-},{deep: true})
+}, { deep: true })
 
 watch(() => loriData.annotation1, () => {
   // console.log('loriData.annotation1 changed:', loriData.annotation1);
   option.value.dataset[2].source = loriData.annotation1.peaks;
-},{deep: true})
+}, { deep: true })
 
 watch(() => loriData.annotation2, () => {
   // console.log('loriData.annotation2 changed:', loriData.annotation2);
@@ -73,7 +74,7 @@ watch(() => loriData.annotation2, () => {
     ...peak,
     percent: -peak.percent // 取负数
   }));
-},{deep: true})
+}, { deep: true })
 
 const option = ref({
   // title: [
@@ -130,14 +131,17 @@ const option = ref({
       type: "slider",
       yAxisIndex: [0],
       filterMode: "none",
-      right: 0,
-      width: 20,
+      right: 20,
+      width: 10,
     },
   ],
   grid: {
     containLabel: false,
     show: false,
-    bottom: "30%",
+    top: "10%",
+    bottom: "15%",
+    left: "5%",
+    right: "5%",
   },
   graphic: [
     {
@@ -204,11 +208,11 @@ const option = ref({
       source: []
     },
     {
-      dimensions: ['mz', 'intensity', 'percent','icon'],
+      dimensions: ['mz', 'intensity', 'percent', 'icon'],
       source: []
     },
     {
-      dimensions: ['mz', 'intensity', 'percent','icon'],
+      dimensions: ['mz', 'intensity', 'percent', 'icon'],
       source: []
     }
   ],
@@ -221,6 +225,7 @@ const option = ref({
       barWidth: 2,
       itemStyle: {
         color: "rgba(180, 180, 180, 1)",
+
       },
       barGap: '-100%',
       tooltip: {
@@ -269,7 +274,9 @@ const option = ref({
       barWidth: 2,
       barGap: "-100%",
       itemStyle: {
-        color: "rgba(0, 0, 255, 1)",
+        color: function (params) {
+          return params.data.type == 'b' ? 'blue' : 'red';
+        },
       },
       label: {
         normal: {
@@ -277,7 +284,7 @@ const option = ref({
           position: 'top',
           formatter: function (param) {
             // console.log('param:', param.data);
-            return (param.data.icon);
+            return (param.data.label);
           },
           textStyle: {
             color: '#000'
@@ -296,7 +303,9 @@ const option = ref({
       barWidth: 2,
       barGap: "-100%",
       itemStyle: {
-        color: "rgba(0, 0, 255, 1)",
+        color: function (params) {
+          return params.data.type == 'b' ? 'blue' : 'red';
+        },
       },
       label: {
         normal: {
@@ -304,7 +313,7 @@ const option = ref({
           position: 'bottom',
           formatter: function (param) {
             // console.log('param:', param.data);
-            return (param.data.icon);
+            return (param.data.label);
           },
           textStyle: {
             color: '#000'
@@ -384,8 +393,10 @@ const onShowType = (type: number) => {
   usiType.value = type;
   if (usiType.value == 1) {
     Peptide.value = loriData.spectrum1.title;
+    inputValue.value = loriData.spectrum1.usi;
   } else {
     Peptide.value = loriData.spectrum2.title;
+    inputValue.value = loriData.spectrum2.usi;
   }
   showInput.value = true;
 }

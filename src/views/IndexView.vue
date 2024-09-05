@@ -1,25 +1,26 @@
 <template>
   <!-- index.vue -->
   <div class="container">
-    <div class="column left">
+    <!-- <div class="column left">
       <loriForm />
-    </div>
-    <div class="column middle">
+    </div> -->
+    <div class="column middle" style="">
       <!-- <ColourfulText></ColourfulText> -->
-
-      <loriChat />
-      <div style="height:4px; background-color: #ddd; margin: 32px 0;"></div>
-      <massChat />
+      <loriForm1 />
+      <loriChat style="border: 1px solid #ddd;margin-top:8px;"/>
+      <!-- <div style="height:4px; background-color: #ddd; margin: 32px 0;"></div> -->
+      <massChat style="margin-top:8px;"/>
 
     </div>
-    <div class="column right">
+    <!-- <div class="column right">
       <loriTable />
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script setup lang="ts">
 import loriForm from "./LoriForm.vue";
+import loriForm1 from "./LoriForm1.vue";
 import loriChat from "./LoriChat.vue";
 import massChat from "./MassChat.vue";
 import loriTable from "./LoriTable.vue";
@@ -39,15 +40,15 @@ const value = ref([20, 50]);
 }
 
 .column {
-  padding: 10px;
+  /* padding: 10px; */
   box-sizing: border-box;
-  border: 1px solid #ddd;
-  margin: 10px;
+  /* border: 1px solid #ddd; */
+  /* margin: 10px; */
 }
 
 .left {
   min-width: 210px;
-  width: 210px; 
+  width: 210px;
   /* background-color: #f8d7da; */
 }
 
