@@ -210,7 +210,7 @@ export const loadSpectrumData2 = async (usi: string) => {
 
 export const loadSpectrumAnnotation1 = async () => {
     let params = {
-        "method": "",
+        "method": "spectrum_utils",
         "usi": "",
         "peptide": "",
         "precursor_mz": 0,
@@ -324,7 +324,7 @@ export const loadSpectrumAnnotation1 = async () => {
 export const loadSpectrumAnnotation2 = async () => {
 
     let params = {
-        "method": "",
+        "method": "spectrum_utils",
         "usi": "",
         "peptide": "",
         "precursor_mz": 0,
