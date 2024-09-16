@@ -5,7 +5,7 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base:'/pride/usi-viewer/',
+  base:'/pride/archive/usi-viewer/',
   resolve: {
     // https://cn.vitejs.dev/config/#resolve-alias
     alias: {
