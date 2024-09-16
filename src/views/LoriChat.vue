@@ -149,7 +149,7 @@ const option = ref({
       right: "35",
       top: "0",
       style: {
-        image: "/setting1.svg",
+        image: "./setting1.svg",
         width: 20,
         height: 20,
       },
@@ -162,7 +162,7 @@ const option = ref({
       right: "35",
       bottom: "50",
       style: {
-        image: "/setting1.svg",
+        image: "./setting1.svg",
         width: 20,
         height: 20,
       },
