@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: usi-viewer
+  labels:
+    app: usi-viewer
+spec:
+  replicas: $k8s_replicas
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: usi-viewer
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: $k8s_rollingupdate_maxUnavailable
+  template:
+    metadata:
+      labels:
+        app: usi-viewer
+    spec:
+      imagePullSecrets:
+        - name: $DOCKER_PULL_SECRET
+      containers:
+        - name: usi-viewer
+          image: $IMAGE
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /pride/archive/usi-viewer/
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /pride/archive/usi-viewer/
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: usi-viewer-service
+spec:
+  selector:
+    app: usi-viewer
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: NodePort
