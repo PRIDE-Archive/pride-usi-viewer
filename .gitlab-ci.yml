@@ -25,13 +25,13 @@ docker_build:
 #dev_hh_kube_deploy:
 #  environment: dev-hh
 #  variables:
-#    NAMESPACE: pride-web-dev
+#    NAMESPACE: usi-viewer-dev
 #  extends: .kube_deploy_script
 
 kube_deploy_prod_hh:
   environment: prod-hh
   variables:
-    NAMESPACE: pride-web-prod
+    NAMESPACE: usi-viewer
   extends: .kube_deploy_script
 #  only:
 #    - main
@@ -39,7 +39,7 @@ kube_deploy_prod_hh:
 kube_deploy_prod_hx:
   environment: prod-hx
   variables:
-    NAMESPACE: pride-web-prod
+    NAMESPACE: usi-viewer
   extends: .kube_deploy_script
 #  only:
 #    - main
