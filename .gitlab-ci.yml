@@ -22,27 +22,27 @@ docker_build:
     - docker push $IMAGE
   when: manual
 
-dev_hh_kube_deploy:
-  environment: dev-hh
-  variables:
-    NAMESPACE: pride-web-dev
-  extends: .kube_deploy_script
+#dev_hh_kube_deploy:
+#  environment: dev-hh
+#  variables:
+#    NAMESPACE: pride-web-dev
+#  extends: .kube_deploy_script
 
 kube_deploy_prod_hh:
   environment: prod-hh
   variables:
     NAMESPACE: pride-web-prod
   extends: .kube_deploy_script
-  only:
-    - master
+#  only:
+#    - main
 
 kube_deploy_prod_hx:
   environment: prod-hx
   variables:
     NAMESPACE: pride-web-prod
   extends: .kube_deploy_script
-  only:
-    - master
+#  only:
+#    - main
 
 .kube_deploy_script:
   variables:
