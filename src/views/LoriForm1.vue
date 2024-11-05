@@ -23,9 +23,12 @@
               <Radio label="Da"></Radio>
               <Radio label="ppm"></Radio>
             </RadioGroup>
-
         </td>
-
+         <td style="padding-left: 32px;">
+            <span style="font-size: 14px; font-weight: bold; margin-right:  8px;"> Max Ion Charge: </span>
+            <Input v-model="loriAttr.max_ion_charge" @input="handleInput" placeholder="" type="number" size="small"
+              style="max-width: 60px; margin-left: 4px"></Input>
+         </td>
       </tr>
     </table>
     <div style="padding-left: 64px; display: flex; justify-content: center; align-items: center; ">
@@ -62,6 +65,16 @@ const onAnnotation = async () => {
 
 };
 
+const handleInput = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const value = target.value;
+  const numValue = Number(value);
+  if (numValue < 0) {
+    loriAttr.max_ion_charge = 0;
+  } else {
+    loriAttr.max_ion_charge = numValue;
+  }
+};
 // watch(() => loriAttr, () => {
 //   console.log(loriAttr);
 //   loadSpectrumAnnotation1();

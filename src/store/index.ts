@@ -29,6 +29,7 @@ export type LoriAttr = {
         detect: boolean;
         label: string;
     };
+    max_ion_charge: number;
 }
 export const loriAttr = reactive<LoriAttr>({
     ions: [
@@ -75,8 +76,8 @@ export const loriAttr = reactive<LoriAttr>({
         type: 'Most Intense',
         detect: false,
         label: 'Icon'
-    }
-
+    },
+    max_ion_charge: 2
 })
 
 export type SpectrumData = {
@@ -225,7 +226,8 @@ export const loadSpectrumAnnotation1 = async () => {
         },
         "spectrum_intensity": [],
         "spectrum_mz": [],
-        "annotation": {}
+        "annotation": {},
+        "max_ion_charge":"3"
     };
     params.usi = loriData.spectrum1.usi;
     params.peptide = loriData.spectrum1.title; //loriData.spectrum1.response?.peptidoform loriData.spectrum1.title
@@ -254,7 +256,7 @@ export const loadSpectrumAnnotation1 = async () => {
     if (loriAttr.y) {
         params.ions_type += "y";
     }
-
+    params.max_ion_charge = loriAttr.max_ion_charge.toString();
 
     let res = await spectrumAnnotation(params);
     if (!res.peaks || !res.peaks.length) {
@@ -339,7 +341,8 @@ export const loadSpectrumAnnotation2 = async () => {
         },
         "spectrum_intensity": [],
         "spectrum_mz": [],
-        "annotation": {}
+        "annotation": {},
+        "max_ion_charge":"3"
     };
     params.usi = loriData.spectrum2.usi;
     params.peptide = loriData.spectrum2.title; //loriData.spectrum2.response?.peptidoform loriData.spectrum2.title
@@ -369,6 +372,7 @@ export const loadSpectrumAnnotation2 = async () => {
     if (loriAttr.y) {
         params.ions_type += "y";
     }
+    params.max_ion_charge = loriAttr.max_ion_charge.toString();
 
     let res = await spectrumAnnotation(params);
     if (!res.peaks || !res.peaks.length) {
