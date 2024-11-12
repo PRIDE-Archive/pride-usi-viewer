@@ -282,9 +282,40 @@ const option = ref({
         normal: {
           show: true,
           position: 'top',
+          rich: {
+            main: {
+              fontSize: 16,
+              color: '#000',
+              align: 'left',
+              verticalAlign: 'middle',
+            
+              padding: [0, 0, 0, 0]
+            },
+            topRight: {
+              fontSize: 10,
+              color: '#000',
+              align: 'right',
+              verticalAlign: 'top',
+              padding: [0, 0, 0, 0]
+            },
+            bottomRight: {
+              fontSize: 10,
+              color: '#000',
+              align: 'right',
+              verticalAlign: 'bottom',
+              padding: [0, 0, 0, 15]
+            }
+          },
           formatter: function (param) {
-            // console.log('param:', param.data);
-            return (param.data.label);
+            const label = param.data.label;
+            const neutrals = param.data.neutrals;
+
+            // 使用特殊字符来创建垂直布局
+            return [
+              '{topRight|' + (neutrals[1] || '') + '  }',
+              '{main|' + label + '}',
+              '{bottomRight|' + (neutrals[0] || '') + '}'
+            ].join('\n');
           },
           textStyle: {
             color: '#000'
@@ -311,9 +342,40 @@ const option = ref({
         normal: {
           show: true,
           position: 'bottom',
+          rich: {
+            main: {
+              fontSize: 16,
+              color: '#000',
+              align: 'left',
+              verticalAlign: 'middle',
+            
+              padding: [0, 0, 0, 0]
+            },
+            topRight: {
+              fontSize: 10,
+              color: '#000',
+              align: 'right',
+              verticalAlign: 'top',
+              padding: [0, 0, 0, 0]
+            },
+            bottomRight: {
+              fontSize: 10,
+              color: '#000',
+              align: 'right',
+              verticalAlign: 'bottom',
+              padding: [0, 0, 0, 15]
+            }
+          },
           formatter: function (param) {
-            // console.log('param:', param.data);
-            return (param.data.label);
+            const label = param.data.label;
+            const neutrals = param.data.neutrals;
+
+            // 使用特殊字符来创建垂直布局
+            return [
+              '{topRight|' + (neutrals[1] || '') + '  }',
+              '{main|' + label + '}',
+              '{bottomRight|' + (neutrals[0] || '') + '}'
+            ].join('\n');
           },
           textStyle: {
             color: '#000'

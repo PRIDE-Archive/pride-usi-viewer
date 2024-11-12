@@ -295,27 +295,42 @@ export const loadSpectrumAnnotation1 = async () => {
             return;
         }
 
+        // formParts: ['y6','NH3^2']
         const formParts = annotationParts[0].split('-');
+        // icon: y6
         const icon = formParts[0];
-        const neutral = formParts.length == 2 ? formParts[1] : '';
+        // neutral: NH3^2 | ''
+        const neutralParts = formParts.length == 2 ? formParts[1] : '';
+        let neutrals = neutralParts.split('^');
+        if (neutrals.length != 2 || isNaN(parseInt(neutrals[1]))) {
+          neutrals = ['', ''];
+        } else {
+          let count = parseInt(neutrals[1]);
+          neutrals[1] = Array(count).fill('+').join('');
+        }
+
+        // mass: 0.3
         const mass = annotationParts[1].replace(/[^0-9.]/g, '');
 
         const percent = Number(((intensity * 100) / maxIntensity).toFixed(2));
 
         const regex = /^([by])(\d+)$/;
+        // match: ['y6','y','6']
         const match = icon.match(regex);
         if (!match) {
-            return;
+          return;
         }
+
+        // type: y or b
         const type = match[1];
+        // sequence: 6
         const sequence = match[2];
         if (loriData.annotation1.annotations.find(item => item.type == type && item.sequence == sequence)) {
-            return;
+          return;
         }
         loriData.annotation1.annotations.push({ type: type, sequence: sequence, label: match[0] });
 
-        loriData.annotation1.peaks.push({ mz, intensity, annotation, percent, type, label: icon, neutral: neutral, mass: mass })
-
+        loriData.annotation1.peaks.push({ mz, intensity, annotation, percent, type, label: icon, neutrals: neutrals, mass: mass })
 
     })
 
@@ -412,9 +427,18 @@ export const loadSpectrumAnnotation2 = async () => {
             return;
         }
 
+
         const formParts = annotationParts[0].split('-');
         const icon = formParts[0];
-        const neutral = formParts.length == 2 ? formParts[1] : '';
+        const neutralParts = formParts.length == 2 ? formParts[1] : '';
+        let neutrals = neutralParts.split('^');
+        if (neutrals.length != 2 || isNaN(parseInt(neutrals[1]))) {
+          neutrals = ['', ''];
+        } else {
+          let count = parseInt(neutrals[1]);
+          neutrals[1] = Array(count).fill('+').join('');
+        }
+
         const mass = annotationParts[1].replace(/[^0-9.]/g, '');
 
         const percent = Number(((intensity * 100) / maxIntensity).toFixed(2));
@@ -422,17 +446,18 @@ export const loadSpectrumAnnotation2 = async () => {
         const regex = /^([by])(\d+)$/;
         const match = icon.match(regex);
         if (!match) {
-            return;
+          return;
         }
         const type = match[1];
         const sequence = match[2];
         if (loriData.annotation2.annotations.find(item => item.type == type && item.sequence == sequence)) {
-            return;
+          return;
         }
         loriData.annotation2.annotations.push({ type: type, sequence: sequence, label: match[0] });
 
-        loriData.annotation2.peaks.push({ mz, intensity, annotation, percent, type, label: icon, neutral: neutral, mass: mass })
+        loriData.annotation2.peaks.push({ mz, intensity, annotation, percent, type, label: icon, neutrals: neutrals, mass: mass })
 
+      
 
     })
 
