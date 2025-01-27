@@ -7,29 +7,31 @@
             <text class="aminoacid" :x="20 * i" opacity="1" y="25" style="font-size: 20; fill: black; stroke: none">
               {{ t }}
             </text>
-
           </template>
           <template v-for="(annotation, i) in annotations">
             <template v-if="annotation.type == 'b'">
-              <text class="aminoacid" :x="20 * (annotation.sequence - 1)" opacity="1" y="8" style="font-size: 8; fill: black; stroke: none">
-              {{ annotation.label }}
-            </text>
-              <path class="line" :d="`M${(annotation.sequence - 1)*20+ 10},25 L${(annotation.sequence - 1)*20+ 10},13.5 L${(annotation.sequence - 1)*20 + 6},6`" opacity="1" style="stroke: rgb(0, 0, 255)"></path>
+              <text class="aminoacid" :x="20 * (annotation.sequence - 0.5)" opacity="1" :y="8" style="font-size: 8; fill: black; stroke: none">
+                {{ annotation.label }}
+              </text>
+              <!-- <path class="line" :d="`M${(annotation.sequence - 1)*20+ 10},25 L${(annotation.sequence - 1)*20+ 10},13.5 L${(annotation.sequence - 1)*20 + 6},6`" opacity="1" style="stroke: rgb(0, 0, 255)"></path> -->
+              <path class="line" :d="`M${(annotation.sequence - 1)*20+ 10},25 L${(annotation.sequence - 1)*20+ 10},13.5 L${(annotation.sequence - 1)*20 + 10},12`" opacity="1" style="stroke: rgb(0, 0, 255)"></path>
             </template>
             <template v-if="annotation.type == 'y'">
-              <text class="aminoacid" :x="20 * (title.length - annotation.sequence)" opacity="1" y="40" style="font-size: 8; fill: black; stroke: none">
-              {{ annotation.label }}
-            </text>
-              <path class="line" :d="`M${(title.length - annotation.sequence -1) * 20 + 10},25 L${(title.length - annotation.sequence -1) * 20 + 10},37 L${(title.length - annotation.sequence -1) * 20 + 14},43`" opacity="1"
-            style="stroke: rgb(255, 0, 0)"></path>
+              <text class="aminoacid" :x="20 * (title.length - annotation.sequence - 0.5)" opacity="1" :y="40" style="font-size: 8; fill: black; stroke: none">
+                {{ annotation.label }}
+              </text>
+                <!-- <path class="line" :d="`M${(title.length - annotation.sequence -1) * 20 + 10},25 L${(title.length - annotation.sequence -1) * 20 + 10},37 L${(title.length - annotation.sequence -1) * 20 + 14},43`" opacity="1"
+                style="stroke: rgb(255, 0, 0)"></path> -->
+              <path class="line" :d="`M${(title.length - annotation.sequence -1) * 20 + 10},25 L${(title.length - annotation.sequence -1) * 20 + 10},37 L${(title.length - annotation.sequence -1) * 20 + 10},37`" opacity="1"
+              style="stroke: rgb(255, 0, 0)"></path>
             </template>
             
           </template>
 
           <!-- <path class="line" :d="`M${0 * 20 + 10},25 L${0 * 20 + 10},13 L${0 * 20 + 6},6`" opacity="1"
             style="stroke: rgb(13, 117, 188)">
-          </path> -->
-<!-- 
+          </path> 
+
           <path class="line" :d="`M${1 * 20 + 10},25 L${1 * 20 + 10},37 L${1 * 20 + 14},43`" opacity="1"
             style="stroke: rgb(13, 117, 188)"></path>
 
