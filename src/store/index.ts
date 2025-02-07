@@ -890,8 +890,6 @@ export const loadSpectrumAnnotation2 = async () => {
 
 }
 
-
-import reciveJson from './receive1.json';
 export const loadAnnotateUsi1 = async (usi: string) => {
   loriData.spectrum1.title = '';
   loriData.spectrum1.peaks = [];
@@ -913,8 +911,7 @@ export const loadAnnotateUsi1 = async (usi: string) => {
     params.neutral_losses.H2O = -18.010565;
   } 
 
-  // const res = await annotateUsi(params);
-  const res = reciveJson;
+  const res = await annotateUsi(params);
 
   if (!res.intensities) {
     console.error('have not intensities')
@@ -1015,29 +1012,21 @@ export const loadAnnotateUsi1 = async (usi: string) => {
   })
 }
 
-export const loadAnnotateUsi2 = async (usi: string) => {
-  loriData.spectrum1.title = '';
-  loriData.spectrum1.peaks = [];
-  loriData.spectrum1.usi = usi;
+
+export const loadAnnotateUsi2 = async () => {
+
+  if(!loriData.spectrum1.response || !loriData.spectrum1.response.peptidoform) {
+    console.error('have not peptidoform')
+    alert('have not peptidoform');
+    return;
+  }
 
   let params = {
-    "usi": usi,
-    "method": "spectrum_utils",
-    "fragment_tol_mass": loriAttr.mass.tol || 20,
-    "fragment_tol_unit": loriAttr.mass.tolType || "ppm",
-    "ions_type": loriAttr.b ? "b" : "" + loriAttr.y ? "y" : "",
-    "neutral_losses": {},
-    "max_ion_charge": loriAttr.max_ion_charge
+    "peptidoform": loriData.spectrum1.response.peptidoform,
+    "model": "HCD2021",
   };
-  if (loriAttr.neutral.nh3) {
-    params.neutral_losses.NH3 = -17.026549;
-  } 
-  if (loriAttr.neutral.h2o) {
-    params.neutral_losses.H2O = -18.010565;
-  } 
 
-  const res = await annotateUsi(params);
-  // const res = reciveJson;
+  const res = await spectrumPrediction(params);
 
   if (!res.intensities) {
     console.error('have not intensities')
@@ -1057,23 +1046,22 @@ export const loadAnnotateUsi2 = async (usi: string) => {
     const mz = res.masses[i];
     const intensity = res.intensities[i];
     const percent = Number(((res.intensities[i] * 100) / maxIntensity).toFixed(2));
-    loriData.spectrum1.peaks.push({ mz, intensity, percent });
+    loriData.spectrum2.peaks.push({ mz, intensity, percent });
   }
 
   if (res.peptide_sequence) {
-    loriData.spectrum1.title = res.peptide_sequence;
+    loriData.spectrum2.title = res.peptide_sequence;
   }
 
-  loriData.spectrum1.response = res;
-
+  loriData.spectrum2.response = res;
 
   if (!res.annotations || !res.annotations.length) {
     console.error('spectrumAnnotation have not annotations')
     return;
   }
-  loriData.annotation1.title = res.peptide_sequence;
-  loriData.annotation1.peaks = [];
-  loriData.annotation1.annotations = [];
+  loriData.annotation2.title = res.peptide_sequence;
+  loriData.annotation2.peaks = [];
+  loriData.annotation2.annotations = [];
   maxIntensity = 0;
   for (let i = 0; i < res.annotations.length; i++) {
     let y = res.annotations[i].intensity;
@@ -1127,12 +1115,12 @@ export const loadAnnotateUsi2 = async (usi: string) => {
     const type = match[1];
     // sequence: 6
     const sequence = match[2];
-    if (loriData.annotation1.annotations.find(item => item.type == type && item.sequence == sequence)) {
+    if (loriData.annotation2.annotations.find(item => item.type == type && item.sequence == sequence)) {
       return;
     }
-    loriData.annotation1.annotations.push({ type: type, sequence: sequence, label: match[0] });
+    loriData.annotation2.annotations.push({ type: type, sequence: sequence, label: match[0] });
 
-    loriData.annotation1.peaks.push({ mz, intensity, annotation, percent, type, label: icon, neutrals: neutrals, mass: mass })
+    loriData.annotation2.peaks.push({ mz, intensity, annotation, percent, type, label: icon, neutrals: neutrals, mass: mass })
 
 
   })
