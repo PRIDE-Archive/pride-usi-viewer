@@ -8,9 +8,9 @@ export const spectrumAnnotation = (param: any) => {
 };
 
 export const annotateUsi = (param: any) => {
-  return post("/pride/molecules/ws/annotate_usi", param);
+  return post("/pride/ws/usi/v1/annotate_usi", param);
 };
 
-export const spectrumPrediction = (usi: string) => {
-  return get("/pride/molecules/ws/spectrum_prediction", { usi, resultType: 'FULL' });
+export const spectrumPrediction = (param: any) => {
+  return get("/pride/ws/usi/v1/spectrum_prediction", param);
 };
