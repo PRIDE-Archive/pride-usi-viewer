@@ -30,7 +30,7 @@ import { ref, onMounted, nextTick, computed, watch } from "vue";
 import { Spin } from 'view-ui-plus'
 import html2canvas from 'html2canvas';
 import ColourfulText from "./ColourfulText.vue";
-import { loriData, loadSpectrumData2, loadSpectrumAnnotation2, loadAnnotateUsi1 } from "@/store";
+import { loriData, loadSpectrumData2, loadSpectrumAnnotation2, loadAnnotateUsi1,loadAnnotateUsi2 } from "@/store";
 import { zoomData, zoomName, echart1Ref, echart1Option, echart2Ref, echart2Option } from "@/store";
 
 const Peptide = ref<string>("");
@@ -402,8 +402,9 @@ const onUsi = async () => {
       // await loadSpectrumAnnotation1();
       await loadAnnotateUsi1(inputValue.value);
     } else {
-      await loadSpectrumData2(inputValue.value);
-      await loadSpectrumAnnotation2();
+      // await loadSpectrumData2(inputValue.value);
+      // await loadSpectrumAnnotation2();
+      await loadAnnotateUsi2();
     }
   } finally {
     showInput.value = false;
@@ -487,6 +488,7 @@ onMounted(async () => {
     try {
       // await loadSpectrumData2(usi2);
       // await loadSpectrumAnnotation2();
+      await loadAnnotateUsi2();
     } catch (e) {
       console.error(e);
     }
