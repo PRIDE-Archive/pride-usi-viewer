@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import loriForm from "./LoriForm.vue";
 import loriForm1 from "./LoriForm1.vue";
 import loriChat from "./LoriChat.vue";
 import massChat from "./MassChat.vue";
