@@ -604,7 +604,9 @@ const loadSpectrum = async (usi: string) => {
       "method": "spectrum_utils",
       "fragment_tol_mass": loriAttr.mass.tol || 20,
       "fragment_tol_unit": loriAttr.mass.tolType || "ppm",
-      "ions_type": loriAttr.b ? "b" : "" + loriAttr.y ? "y" : "",
+      "ions_type": (loriAttr.b && loriAttr.y) ? "by" :
+                 (loriAttr.b ? "b" :
+                 (loriAttr.y ? "y" : "")),
       "neutral_losses": {},
       "max_ion_charge": loriAttr.max_ion_charge
     };
