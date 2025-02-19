@@ -1,9 +1,11 @@
 import { reactive, ref } from "vue";
 
-import { spectrumAnnotation, getSpectrum, annotateUsi, spectrumPrediction } from "@/api";
+import { annotateUsi, spectrumPrediction } from "@/api";
 
 export const zoomName = ref();
 export const zoomData = ref();
+
+export const downUsiType = ref<"USI" | "Peptidoform">("Peptidoform");
 
 export const echart1Ref = ref(null);
 export const echart1Option = ref({
@@ -148,7 +150,7 @@ export const echart1Option = ref({
       type: "bar",
       encode: { x: 'mz', y: 'percent' },
       datasetIndex: 0,
-      barWidth: 2,
+      barWidth: 0.1,
       itemStyle: {
         color: "rgba(180, 180, 180, 1)",
 
@@ -170,9 +172,9 @@ export const echart1Option = ref({
     {
       name: 'm/z2',
       type: "bar",
-      encode: { x: 'x', y: 'percent' },
+      encode: { x: 'mz', y: 'percent' },
       datasetIndex: 1,
-      barWidth: 2,
+      barWidth: 0.1,
       itemStyle: {
         color: "rgba(180, 180, 180, 1)",
       },
@@ -197,7 +199,7 @@ export const echart1Option = ref({
       datasetIndex: 2,
       symbolSize: 1,
       // showBackground: true,
-      barWidth: 2,
+      barWidth: 0.1,
       barGap: "-100%",
       itemStyle: {
         color: function (params) {
@@ -257,7 +259,7 @@ export const echart1Option = ref({
       datasetIndex: 3,
       symbolSize: 1,
       // showBackground: true,
-      barWidth: 2,
+      barWidth: 0.1,
       barGap: "-100%",
       itemStyle: {
         color: function (params) {
@@ -296,7 +298,6 @@ export const echart1Option = ref({
             const label = param.data.label;
             const neutrals = param.data.neutrals;
 
-            // 使用特殊字符来创建垂直布局
             return [
               '{topRight|' + (neutrals[1] || '') + '  }',
               '{main|' + label + '}',
@@ -307,12 +308,13 @@ export const echart1Option = ref({
             color: '#000'
           }
         }
-        // 结束 normal 配置
       },
     },
   ],
 })
 
+
+export const massType = ref('Top USI');
 export const echart2Ref = ref(null);
 export const echart2Option = ref({
   grid: {
@@ -451,6 +453,7 @@ export type LoriAttr = {
   };
 
   max_ion_charge: number;
+  sqrt: boolean;
 }
 export const loriAttr = reactive<LoriAttr>({
   ions: [
@@ -498,7 +501,8 @@ export const loriAttr = reactive<LoriAttr>({
     detect: false,
     label: 'Icon'
   },
-  max_ion_charge: 3
+  max_ion_charge: 3,
+  sqrt: true,
 
 })
 
@@ -562,40 +566,9 @@ export const loriData = reactive({
   }
 } as LoriData)
 
-export const loadSpectrumData1 = async (usi: string) => {
-  loriData.spectrum1.title = '';
-  loriData.spectrum1.peaks = [];
-  loriData.spectrum1.usi = usi;
-  const psm = await getSpectrum(usi);
-
-  if (!psm.intensities) {
-    console.error('have not intensities')
-    return;
-  }
-  if (psm.intensities.length != psm.masses.length) {
-    console.error('intensities.length != masses.length')
-    return;
-  }
-  let maxIntensity = 0;
-  for (let i = 0; i < psm.intensities.length; i++) {
-    let y = psm.intensities[i];
-    maxIntensity = y > maxIntensity ? y : maxIntensity;
-  }
-
-  for (let i = 0; i < psm.intensities.length; i++) {
-    const mz = psm.masses[i];
-    const intensity = psm.intensities[i];
-    const percent = Number(((psm.intensities[i] * 100) / maxIntensity).toFixed(2));
-    loriData.spectrum1.peaks.push({ mz, intensity, percent });
-  }
-
-  if (psm.peptideSequence) {
-    loriData.spectrum1.title = psm.peptideSequence;
-  }
-
-  loriData.spectrum1.response = psm;
+export const isUsi = (usi: string) => {
+  return usi && usi.split(':').length - 1 >= 3;
 }
-
 const loadSpectrum = async (usi: string) => {
 
   if (usi.split(':').length - 1 >= 3) {
@@ -604,9 +577,7 @@ const loadSpectrum = async (usi: string) => {
       "method": "spectrum_utils",
       "fragment_tol_mass": loriAttr.mass.tol || 20,
       "fragment_tol_unit": loriAttr.mass.tolType || "ppm",
-      "ions_type": (loriAttr.b && loriAttr.y) ? "by" :
-                 (loriAttr.b ? "b" :
-                 (loriAttr.y ? "y" : "")),
+      "ions_type": (loriAttr.b ? "b" : "") + (loriAttr.y ? "y" : ""),
       "neutral_losses": {},
       "max_ion_charge": loriAttr.max_ion_charge
     };
@@ -633,6 +604,9 @@ const loadSpectrum = async (usi: string) => {
 
 }
 
+
+// import jsonData1 from './receive1.json';
+
 export const loadDataUp = async (usi: string = '') => {
   if (usi) {
     loriData.spectrum1.usi = usi;
@@ -644,6 +618,7 @@ export const loadDataUp = async (usi: string = '') => {
   }
 
   let res = await loadSpectrum(loriData.spectrum1.usi);
+  // let res = jsonData1;
 
   loriData.spectrum1.title = '';
   loriData.spectrum1.peaks = [];
@@ -721,10 +696,10 @@ export const loadDataUp = async (usi: string = '') => {
     }
 
     // mass: 0.3
-    const mass = annotationParts[1].replace(/[^0-9.]/g, '');
+    const mass = annotationParts[1].replace(/[^0-9.-]/g, '');
 
     const percent = Number(((intensity * 100) / maxIntensity).toFixed(2));
-
+    // console.log(annotation, 'icon:', icon, 'intensity:', intensity, 'percent:', percent)
     const regex = /^([by])(\d+)$/;
     // match: ['y6','y','6']
     const match = icon.match(regex);
@@ -736,15 +711,22 @@ export const loadDataUp = async (usi: string = '') => {
     const type = match[1];
     // sequence: 6
     const sequence = match[2];
-    if (loriData.annotation1.annotations.find(item => item.type == type && item.sequence == sequence)) {
-      return;
-    }
+    // if (loriData.annotation1.annotations.find(item => item.type == type && item.sequence == sequence)) {
+    //   return;
+    // }
     loriData.annotation1.annotations.push({ type: type, sequence: sequence, label: match[0] });
 
     loriData.annotation1.peaks.push({ mz, intensity, annotation, percent, type, label: icon, neutrals: neutrals, mass: mass })
   })
+
+
+  // update echart
+  echart1Option.value.dataset[0].source = loriData.spectrum1.peaks;
+  echart1Option.value.dataset[2].source = loriData.annotation1.peaks;
+
 }
 
+// import jsonData2 from './receive2.json';
 export const loadDataDown = async (usi: string = '') => {
   if (usi) {
     loriData.spectrum2.usi = usi;
@@ -756,6 +738,7 @@ export const loadDataDown = async (usi: string = '') => {
   }
 
   let res = await loadSpectrum(loriData.spectrum2.usi);
+  // let res = jsonData2;
 
   loriData.spectrum2.title = '';
   loriData.spectrum2.peaks = [];
@@ -792,6 +775,7 @@ export const loadDataDown = async (usi: string = '') => {
     console.error('spectrumAnnotation have not annotations')
     return;
   }
+  downUsiType.value = isUsi(loriData.spectrum2.usi) ? 'USI' : 'Peptidoform';
   loriData.annotation2.title = res.peptide_sequence;
   loriData.annotation2.peaks = [];
   loriData.annotation2.annotations = [];
@@ -807,21 +791,22 @@ export const loadDataDown = async (usi: string = '') => {
     const intensity = peak.intensity;
 
     const annotation = peak.annotation;
-    // annotation: y6-NH3^2/0.3ppm
+    // annotation: y6-NH3^2/0.3ppm    b1/-5e-05   b9^2/36.8ppm
     if (!annotation || !annotation.includes('/')) {
       return;
     }
 
-    // annotationParts: ['y6-NH3^2','0.3ppm']
+    // annotationParts: ['y6-NH3^2','0.3ppm'] ['b1','-5e-05'] 
     const annotationParts = annotation.split('/');
     if (annotationParts.length != 2) {
       return;
     }
 
-    // formParts: ['y6','NH3^2']
+    // formParts: ['y6','NH3^2']  ['b1']
     const formParts = annotationParts[0].split('-');
     // icon: y6
     const icon = formParts[0];
+
     // neutral: NH3^2 | ''
     const neutralParts = formParts.length == 2 ? formParts[1] : '';
     let neutrals = neutralParts.split('^');
@@ -833,10 +818,10 @@ export const loadDataDown = async (usi: string = '') => {
     }
 
     // mass: 0.3
-    const mass = annotationParts[1].replace(/[^0-9.]/g, '');
+    const mass = annotationParts[1].replace(/[^0-9.-]/g, '');
 
-    const percent = Number(((intensity * 100) / maxIntensity).toFixed(2));
-
+    const percent = Number(((intensity * 100) / maxIntensity));
+    // console.log(annotation, 'icon:', icon, 'intensity:', intensity, 'percent:', percent)
     const regex = /^([by])(\d+)$/;
     // match: ['y6','y','6']
     const match = icon.match(regex);
@@ -848,12 +833,54 @@ export const loadDataDown = async (usi: string = '') => {
     const type = match[1];
     // sequence: 6
     const sequence = match[2];
-    if (loriData.annotation2.annotations.find(item => item.type == type && item.sequence == sequence)) {
-      return;
-    }
+    // if (loriData.annotation2.annotations.find(item => item.type == type && item.sequence == sequence)) {
+    //   return;
+    // }
     loriData.annotation2.annotations.push({ type: type, sequence: sequence, label: match[0] });
 
     loriData.annotation2.peaks.push({ mz, intensity, annotation, percent, type, label: icon, neutrals: neutrals, mass: mass })
 
   })
+
+  // update echart
+  echart1Option.value.dataset[1].source = loriData.spectrum2.peaks.map(peak => ({
+    ...peak,
+    percent: -(Math.abs(peak.percent))
+  }));
+  echart1Option.value.dataset[3].source = loriData.annotation2.peaks.map(peak => ({
+    ...peak,
+    percent: -(Math.abs(peak.percent))
+  }));
+
+}
+
+export const loadMassData = async () => {
+
+  console.log('loadMassData:', massType.value)
+  const peaks = massType.value == 'Top USI' ? loriData.annotation1.peaks : loriData.annotation2.peaks;
+
+  if (!peaks.length) {
+    console.error('have not peaks for mass echart');
+    return;
+  }
+
+  let max = 0;
+  let min = 0;
+  peaks.forEach(peak => {
+    const mass = peak.mass;
+    if (mass > 0) {
+      max = Math.max(max, mass);
+    } else if (mass < 0) {
+      min = Math.min(min, mass);
+    }
+    console.log('mass:', mass)
+  })
+
+  console.log('max:', max, 'min:', min)
+
+  //update echart2
+  echart2Option.value.yAxis.max = Math.ceil(max);
+  echart2Option.value.yAxis.min = Math.floor(min);
+  echart2Option.value.dataset[0].source = peaks;
+
 }

@@ -6,10 +6,10 @@
     </div> -->
     <div class="column middle" style="">
       <!-- <ColourfulText></ColourfulText> -->
-      <loriForm1 />
-      <loriChat style="border: 1px solid #ddd;margin-top:8px;"/>
+      <loriForm />
+      <loriChart style="border: 1px solid #ddd;margin-top:8px;"/>
       <!-- <div style="height:4px; background-color: #ddd; margin: 32px 0;"></div> -->
-      <massChat style="margin-top:8px;"/>
+      <massChart style="margin-top:8px;"/>
 
     </div>
     <!-- <div class="column right">
@@ -19,11 +19,10 @@
 </template>
 
 <script setup lang="ts">
-import loriForm1 from "./LoriForm1.vue";
-import loriChat from "./LoriChat.vue";
-import massChat from "./MassChat.vue";
+import loriForm from "./LoriForm.vue";
+import loriChart from "./LoriChart.vue";
+import massChart from "./MassChart.vue";
 import loriTable from "./LoriTable.vue";
-// import ColourfulText from "./ColourfulText.vue";
 import { ref, type Ref } from "vue";
 
 // const value: Ref<number[]> = ref([20, 50])
