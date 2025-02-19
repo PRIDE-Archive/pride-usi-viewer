@@ -39,26 +39,52 @@
     </table>
     <div style="padding-left: 64px; display: flex; justify-content: center; align-items: center; ">
       <div style="margin-top: 24x;margin-right: 8px;">
+        <Button style="margin: 0 auto;" type="primary" @click="showSetting = true">Settings</Button>
+      </div>
+      <div style="margin-top: 24x;margin-right: 8px;">
         <Button style="margin: 0 auto;" type="primary" @click="onAnnotation">Generate</Button>
       </div>
     </div>
   </div>
 
-
+  <Modal :closable="false" v-model="showSetting" title="Settings" @on-cancel="showSetting = false" width="400px">
+    <div>
+      <div style="padding: 16px; display: flex; align-items: center; ">
+        <div style="font-size: 16px;flex:1;">Intensity:</div>
+        <Checkbox style="flex:1;" v-model="loriAttr.sqrt">Sqrt</Checkbox>
+      </div>
+      <div style="padding: 16px; display: flex; align-items: center; ">
+        <div style="font-size: 16px;flex:1;">Width:</div>
+        <InputNumber style="flex:1;" :max="2" :min="0.1" :step="0.1" v-model="width" placeholder="Enter the Width" />
+      </div>
+    </div>
+    <template #footer>
+      <Button @click="showSetting = false">Cancel</Button>
+      <Button type="primary" @click="onSettings">OK</Button>
+    </template>
+  </Modal>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick, watch } from "vue";
-import { loriAttr, loadDataUp, loadDataDown } from "@/store";
+import { Message } from 'view-ui-plus'
+import { loriAttr, loadDataUp, loadDataDown, echart1Option } from "@/store";
 import { Spin } from 'view-ui-plus'
+const showSetting = ref(false);
+const width = ref(echart1Option.value.series[0].barWidth);
+const onSettings = async () => {
+  console.log(width.value);
+  if (width.value && width.value >= 0.1) {
+    for (let i = 0; i < echart1Option.value.series.length; i++) {
+      echart1Option.value.series[i].barWidth = width.value;
+    }
+    showSetting.value = false;
+    return;
+  }
 
-const onUpdate = async () => {
-  // console.log(loriAttr);
+  Message.warning(`Request correct value!`);
 
-  // let data = await spectrumAnnotations(send);
-  // console.log(data);
-
-};
+}
 
 const onAnnotation = async () => {
   try {
